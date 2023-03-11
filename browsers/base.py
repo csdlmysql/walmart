@@ -7,7 +7,7 @@ from amazoncaptcha import AmazonCaptcha
 from selenium.webdriver.common.keys import Keys
 from uuid import uuid4
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
-from config import PROFILES_FOLDER
+# from config import PROFILES_FOLDER
 import random
 import logging
 import time
@@ -16,22 +16,22 @@ import traceback
 import json
 import os
 
-from seleniumwire import webdriver as wire_webdriver
-from selenium import webdriver
+from seleniumwire import webdriver
+# from selenium import webdriver
 
 logger = logging.getLogger('seleniumwire.handler:Capturing')
 logger.setLevel(logging.ERROR)
 
 
 class Base():
-    def __init__(self, email=None, keyword=None, start_url='https://www.walmart.com/', headless=True, profile=None, proxy=False, host="", port="", user="", password="", wait_time=30):
+    def __init__(self, headless=True, proxy=True, host="", port="", user="", password="", wait_time=30):
         self.driver = None
         self.wait_time = wait_time
         self.user = user
         self.password = password
         self.Keys = Keys
-        self.email = email
-        self.setup_driver(proxy=proxy, headless=headless, profile=profile, host=host, port=port, user=user, password=password)
+        self.home = 'https://www.walmart.com/'
+        self.setup_driver(proxy=proxy, headless=headless, host=host, port=port, user=user, password=password)
     
     def valid_otp(self):
         if self._has_captcha():
@@ -181,6 +181,7 @@ class Base():
         self.chrome_options = Options()
         self.chrome_options.add_argument("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
         self.chrome_options.add_argument("--start-maximized")
+        # self.chrome_options.add_argument("--log-level=4")
 
         self.chrome_options.add_argument("--disable-crash-reporter")
         self.chrome_options.add_argument("--disable-logging")
@@ -189,12 +190,12 @@ class Base():
         self.chrome_options.add_experimental_option('useAutomationExtension', False)
         self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         # self.chrome_options.add_argument("--kiosk")
-        self.chrome_options.add_argument('--disable-infobars')
-        self.chrome_options.add_argument('--disable-dev-shm-usage')
+        # self.chrome_options.add_argument('--disable-infobars')
+        # self.chrome_options.add_argument('--disable-dev-shm-usage')
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("--disable-notifications")
 
-        #self.chrome_options.add_extension('anti_cookie.crx')
+        self.chrome_options.add_extension('plugin.zip')
         
         if headless:
             self.chrome_options.add_argument("--disable-gpu")
@@ -210,13 +211,13 @@ class Base():
             PROXY = f"{user}:{password}@{host}:{port}"
             proxies = {
                 'proxy': {
-                    'http': 'socks5://' + PROXY,
-                    'https': 'socks5://' + PROXY,
+                    'http': 'http://' + PROXY,
+                    'https': 'http://' + PROXY,
                     'no_proxy': 'localhost,127.0.0.1'
                 },
                 'exclude_hosts': ['google-analytics.com'],
             }
-            self.driver = wire_webdriver.Chrome(seleniumwire_options=proxies, options=self.chrome_options)
+            self.driver = webdriver.Chrome(seleniumwire_options=proxies, options=self.chrome_options)
         else:
             self.driver = webdriver.Chrome(options=self.chrome_options)
 
